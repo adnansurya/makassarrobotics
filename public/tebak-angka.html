@@ -1,0 +1,100 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Permainan Tebak Angka</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding-top: 50px;
+      background-color: #E4F1FE;
+    }
+
+    h1 {
+      color: #4285F4;
+      font-size: 30px;
+    }
+
+    #guess-input {
+      width: 100px;
+      padding: 5px;
+      text-align: center;
+      font-size: 24px;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 15px;
+    }
+
+    @media (max-width: 576px) {
+      #guess-input {
+        width: 80px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card bg-light mt-5">
+          <div class="card-body">
+            <h1 class="card-title">Permainan Tebak Angka</h1>
+            <p class="card-text">Tebak angka antara 1 dan 100:</p>
+            <div class="form-group">
+              <input type="number" id="guess-input" class="form-control-sm" min="1" max="100">
+            </div>
+            <button class="btn btn-lg btn-primary mr-2" onclick="checkGuess()">CEK</button>           
+            <p id="result"></p>
+          </div>
+        </div>
+        <button class="btn btn-secondary mt-2 btn-sm" onclick="goBack()">Kembali</button>
+        <button class="btn btn-secondary mt-2 btn-sm" onclick="refreshPage()">Refresh</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Membangkitkan angka acak antara 1 dan 100
+    const randomNumber = Math.floor(Math.random() * 100) + 1;
+    let attempts = 0;
+
+    function checkGuess() {
+      const guessInput = document.getElementById("guess-input");
+      const guess = parseInt(guessInput.value);
+      attempts++;
+
+      const result = document.getElementById("result");
+      if (guess === randomNumber) {
+        result.innerHTML = `Selamat! Anda berhasil menebak angka yang benar (${randomNumber}) dalam ${attempts} percobaan.`;
+        result.style.color = "#34A853";
+        guessInput.disabled = true;
+      } else if (guess < randomNumber) {
+        result.innerHTML = "Terlalu rendah! Coba lagi.";
+        result.style.color = "#EA4335";
+      } else {
+        result.innerHTML = "Terlalu tinggi! Coba lagi.";
+        result.style.color = "#EA4335";
+      }
+
+      guessInput.value = "";
+      guessInput.focus();
+    }
+
+    function refreshPage() {
+      location.reload();
+    }
+
+    function goBack() {
+      history.back();
+    }
+  </script>
+</body>
+</html>
