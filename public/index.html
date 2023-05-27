@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -32,29 +33,123 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h1>Selamat Datang di Game Center</h1>
     <div class="btn-group">
-      <button class="btn btn-primary" onclick="openGame('tebak-angka')">Game Tebak Angka</button>
+      <button class="btn btn-primary" data-toggle="modal" data-target="#inputModal" data-game="Tebak Angka">Game Tebak
+        Angka</button>
       <!-- Tambahkan tombol-tombol permainan lainnya di sini -->
     </div>
     <p class="footer">by Makassar Robotics</p>
   </div>
 
-  <script>
-    function openGame(game) {
-      switch (game) {
-        case 'tebak-angka':
-          window.location.href = 'tebak-angka.html';
-          break;
-        // Tambahkan case untuk membuka halaman permainan lainnya di sini
-      }
-    }
-  </script>
-
+  <!-- Modal -->
+  <div class="modal fade" id="inputModal" tabindex="-1" role="dialog" aria-labelledby="inputModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="inputModalLabel">Masukkan Nama dan Nomor Telepon</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <label for="gameName">Nama Permainan:</label>
+              <input type="text" class="form-control" id="gameName" readonly>
+            </div>
+            <div class="form-group">
+              <label for="name">Nama:</label>
+              <input type="text" class="form-control" id="name">
+            </div>
+            <div class="form-group">
+              <label for="phone">Nomor Telepon:</label>
+              <input type="text" class="form-control" id="phone">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" onclick="saveInput()">Simpan</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+  <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-database.js"></script>
+
+  <script>
+    // Initialize Firebase
+    var firebaseConfig = {
+      apiKey: "AIzaSyAcHklpkVYko5ZyuQXaeHhGxa8F3UzxDp0",
+      authDomain: "mksrobotics.firebaseapp.com",
+      databaseURL: "https://mksrobotics.firebaseio.com",
+      projectId: "mksrobotics",
+      storageBucket: "mksrobotics.appspot.com",
+      messagingSenderId: "236823766418",
+      appId: "1:236823766418:web:31de7229a960e361"
+    };
+    firebase.initializeApp(firebaseConfig);
+    $('#inputModal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget);
+      var gameName = button.data('game');
+      console.log(gameName);
+
+      var modal = $(this);
+      modal.find('.modal-title').text('Masukkan Nama dan Nomor Telepon');
+      modal.find('#gameName').val(gameName);
+    });
+
+    function slugify(text) {
+      return text
+        .toLowerCase()
+        .replace(/ /g, '-')           // Replace spaces with hyphens
+        .replace(/[^\w-]+/g, '')      // Remove non-word characters except hyphens
+        .replace(/--+/g, '-')         // Replace multiple consecutive hyphens with a single hyphen
+        .replace(/^-+|-+$/g, '');    // Remove leading and trailing hyphens
+    }
+
+    let gameSlug;
+    function saveInput() {
+      var name = document.getElementById('name').value;
+      var phone = document.getElementById('phone').value;
+      var game = document.getElementById('gameName').value;
+
+      gameSlug = slugify(game);
+
+
+      // Save the data to the Firebase Realtime Database
+      var dataRef = firebase.database().ref('event/games/' + gameSlug + '/');
+      var newEntryRef = dataRef.push({
+        name: name,
+        phone: phone
+      }).then(function (snapshot) {
+        let newEntryKey = snapshot.key;
+        $('#inputModal').modal('hide');
+        switch (gameSlug) {
+          case 'tebak-angka':
+            window.location.href = 'tebak-angka.html?entryKey=' + encodeURIComponent(newEntryKey) + '&name=' + encodeURIComponent(name);
+            break;
+          // Tambahkan case untuk membuka halaman permainan lainnya di sini
+        }
+      });
+    }
+
+
+
+
+  </script>
+
+
 </body>
+
 </html>

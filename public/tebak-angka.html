@@ -1,10 +1,10 @@
-
 <!DOCTYPE html>
 <html>
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Permainan Tebak Angka</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <style>
@@ -40,6 +40,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <div class="row justify-content-center">
@@ -51,17 +52,57 @@
             <div class="form-group">
               <input type="number" id="guess-input" class="form-control-sm" min="1" max="100">
             </div>
-            <button class="btn btn-lg btn-primary mr-2" onclick="checkGuess()">CEK</button>           
+            <button id="cek_btn" class="btn btn-lg btn-primary mr-2" onclick="checkGuess()">CEK</button>
             <p id="result"></p>
           </div>
         </div>
         <button class="btn btn-secondary mt-2 btn-sm" onclick="goBack()">Kembali</button>
-        <button class="btn btn-secondary mt-2 btn-sm" onclick="refreshPage()">Refresh</button>
+        <!-- <button class="btn btn-secondary mt-2 btn-sm" onclick="refreshPage()">Refresh</button> -->
       </div>
     </div>
   </div>
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
+
+  <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-database.js"></script>
   <script>
+    var firebaseConfig = {
+      apiKey: "AIzaSyAcHklpkVYko5ZyuQXaeHhGxa8F3UzxDp0",
+      authDomain: "mksrobotics.firebaseapp.com",
+      databaseURL: "https://mksrobotics.firebaseio.com",
+      projectId: "mksrobotics",
+      storageBucket: "mksrobotics.appspot.com",
+      messagingSenderId: "236823766418",
+      appId: "1:236823766418:web:31de7229a960e361"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    var urlParams = new URLSearchParams(window.location.search);
+    var entryKey = urlParams.get('entryKey');
+    var playerName = urlParams.get('name');
+
+    var devRef = firebase.database().ref('device/tebak-angka');
+
+    // Update the values of the desired fields
+    devRef.update({
+      stat: 'active',
+      player: playerName,
+      attempt: 0
+    })
+      .then(function () {
+        console.log("Data updated successfully");
+      })
+      .catch(function (error) {
+        console.error("Error updating data:", error);
+      });
+
+
+
+
+
     // Membangkitkan angka acak antara 1 dan 100
     const randomNumber = Math.floor(Math.random() * 100) + 1;
     let attempts = 0;
@@ -70,12 +111,15 @@
       const guessInput = document.getElementById("guess-input");
       const guess = parseInt(guessInput.value);
       attempts++;
-
+      let stat_text = 'active';
       const result = document.getElementById("result");
       if (guess === randomNumber) {
         result.innerHTML = `Selamat! Anda berhasil menebak angka yang benar (${randomNumber}) dalam ${attempts} percobaan.`;
         result.style.color = "#34A853";
         guessInput.disabled = true;
+        document.getElementById("cek_btn").disabled = true;
+
+        updateScore(attempts);
       } else if (guess < randomNumber) {
         result.innerHTML = "Terlalu rendah! Coba lagi.";
         result.style.color = "#EA4335";
@@ -83,6 +127,17 @@
         result.innerHTML = "Terlalu tinggi! Coba lagi.";
         result.style.color = "#EA4335";
       }
+
+      devRef.update({
+        stat: stat_text,
+        attempt: attempts
+      })
+        .then(function () {
+          console.log("Data updated successfully");
+        })
+        .catch(function (error) {
+          console.error("Error updating data:", error);
+        });
 
       guessInput.value = "";
       guessInput.focus();
@@ -93,8 +148,38 @@
     }
 
     function goBack() {
+      devRef.update({
+        stat: 'inactive'
+
+      })
+        .then(function () {
+          console.log("Data updated successfully");
+        })
+        .catch(function (error) {
+          console.error("Error updating data:", error);
+        });
+
       history.back();
+    }
+
+    function updateScore(num_attempt) {
+      var entryRef = firebase.database().ref('event/games/tebak-angka/' + entryKey);
+
+      // Update the values of the desired fields
+      entryRef.update({
+        attempt: num_attempt
+      })
+        .then(function () {
+          console.log("Data updated successfully");
+        })
+        .catch(function (error) {
+          console.error("Error updating data:", error);
+        });
+
+
+
     }
   </script>
 </body>
+
 </html>
