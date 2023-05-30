@@ -81,16 +81,26 @@
     firebase.initializeApp(firebaseConfig);
 
     var urlParams = new URLSearchParams(window.location.search);
+    var gameMode = urlParams.get('mode');
     var entryKey = urlParams.get('entryKey');
     var playerName = urlParams.get('name');
-
-    var devRef = firebase.database().ref('device/tebak-angka');
+    let prompt = '';
+    var liveMode = false;
+    if(gameMode == 'live'){
+      liveMode = true;
+    }
+    
+    var devRef = firebase.database().ref('device/lcd-stat');
 
     // Update the values of the desired fields
-    devRef.update({
+    if(liveMode){
+      devRef.update({
+      in_game : 'Tebak Angka',
       stat: 'active',
       player: playerName,
-      attempt: 0
+      score_text : "Attempt",
+      score_val : 0,
+      prompt : 'Game Start!'
     })
       .then(function () {
         console.log("Data updated successfully");
@@ -98,11 +108,8 @@
       .catch(function (error) {
         console.error("Error updating data:", error);
       });
-
-
-
-
-
+    }
+    
     // Membangkitkan angka acak antara 1 dan 100
     const randomNumber = Math.floor(Math.random() * 100) + 1;
     let attempts = 0;
@@ -112,25 +119,33 @@
       const guess = parseInt(guessInput.value);
       attempts++;
       let stat_text = 'active';
+     
       const result = document.getElementById("result");
       if (guess === randomNumber) {
         result.innerHTML = `Selamat! Anda berhasil menebak angka yang benar (${randomNumber}) dalam ${attempts} percobaan.`;
         result.style.color = "#34A853";
         guessInput.disabled = true;
         document.getElementById("cek_btn").disabled = true;
+        prompt = "Good Game!";
 
         updateScore(attempts);
       } else if (guess < randomNumber) {
+        prompt = "Terlalu rendah!";
         result.innerHTML = "Terlalu rendah! Coba lagi.";
         result.style.color = "#EA4335";
       } else {
         result.innerHTML = "Terlalu tinggi! Coba lagi.";
         result.style.color = "#EA4335";
+        prompt = "Terlalu tinggi!";
       }
 
+      if(liveMode){
+        const randomPin = Math.floor(Math.random() * 10000) ;      
       devRef.update({
         stat: stat_text,
-        attempt: attempts
+        score_val : attempts,
+        prompt: prompt,
+        pin : randomPin
       })
         .then(function () {
           console.log("Data updated successfully");
@@ -138,6 +153,8 @@
         .catch(function (error) {
           console.error("Error updating data:", error);
         });
+      }
+      
 
       guessInput.value = "";
       guessInput.focus();
@@ -148,7 +165,9 @@
     }
 
     function goBack() {
-      devRef.update({
+
+      if(liveMode){
+        devRef.update({
         stat: 'inactive'
 
       })
@@ -158,6 +177,8 @@
         .catch(function (error) {
           console.error("Error updating data:", error);
         });
+      }
+      
 
       history.back();
     }
@@ -175,9 +196,6 @@
         .catch(function (error) {
           console.error("Error updating data:", error);
         });
-
-
-
     }
   </script>
 </body>

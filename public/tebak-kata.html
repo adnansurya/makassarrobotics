@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Scramble Game</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        #word-container {
+            margin-top: 50px;
+        }
+
+        #scrambled-word {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        #guess-input {
+            padding: 10px;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+
+        #guess-button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Word Scramble Game (Permainan Tebak Kata)</h1>
+    <div id="word-container">
+        <h2 id="scrambled-word"></h2>
+        <input type="text" id="guess-input" placeholder="Tebak kata">
+        <button id="guess-button">Tebak</button>
+    </div>
+    <div id="result"></div>
+    <script>
+        // function generateRandomIndonesianWord() {
+        //     fetch('https://id.wikipedia.org/w/api.php?action=query&format=json&list=random&rnnamespace=0&rnlimit=1')
+        //         .then(function (response) {
+        //             if (!response.ok) {
+        //                 throw new Error('API request failed');
+        //             }
+        //             return response.json();
+        //         })
+        //         .then(function (data) {
+        //             // Extract the random article information from the API response
+        //             var randomArticle = data.query.random[0];
+        //             var randomTitle = randomArticle.title;
+        //             var randomId = randomArticle.id;
+
+        //             // Make a request to the Wikipedia API to get the snippet of the article
+        //             return fetch(`https://id.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=true&explaintext=true&pageids=${randomId}`);
+        //         })
+        //         .then(function (response) {
+        //             if (!response.ok) {
+        //                 throw new Error('API request failed');
+        //             }
+        //             return response.json();
+        //         })
+        //         .then(function (data) {
+        //             // Extract the snippet of the article from the API response
+        //             var pages = data.query.pages;
+        //             var pageId = Object.keys(pages)[0];
+        //             var snippet = pages[pageId].extract;
+
+        //             // Display the snippet of the article
+        //             console.log('Snippet:', snippet);
+
+        //             // You can use the 'snippet' variable in your code
+        //             // ...
+        //         })
+        //         .catch(function (error) {
+        //             console.log('Error:', error);
+        //         });
+
+        // }
+        // generateRandomIndonesianWord();
+        // Define an array of words
+        var words = ["apel", "jeruk", "mangga", "pisang", "durian"];
+
+        // Randomly select a word
+        var randomIndex = Math.floor(Math.random() * words.length);
+        var selectedWord = words[randomIndex];
+
+        // Scramble the selected word
+        var scrambledWord = selectedWord.split('').sort(function () {
+            return 0.5 - Math.random();
+        }).join('');
+
+        // Display the scrambled word
+        var scrambledWordElement = document.getElementById("scrambled-word");
+        scrambledWordElement.textContent = scrambledWord;
+
+        // Check the guessed word
+        var guessButton = document.getElementById("guess-button");
+        guessButton.addEventListener("click", function () {
+            var guessInput = document.getElementById("guess-input");
+            var guess = guessInput.value.toLowerCase();
+
+            if (guess === selectedWord) {
+                document.getElementById("result").textContent = "Selamat, kamu benar!";
+            } else {
+                document.getElementById("result").textContent = "Maaf, tebakanmu salah. Coba lagi!";
+            }
+
+            guessInput.value = "";
+        });
+
+    </script>
+</body>
+
+</html>

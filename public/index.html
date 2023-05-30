@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Landing Page</title>
+  <title>Makassar Robotics</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <style>
     body {
@@ -37,10 +37,18 @@
 <body>
   <div class="container">
     <h1>Selamat Datang di Game Center</h1>
-    <div class="btn-group">
-      <button class="btn btn-primary" data-toggle="modal" data-target="#inputModal" data-game="Tebak Angka">Game Tebak
-        Angka</button>
-      <!-- Tambahkan tombol-tombol permainan lainnya di sini -->
+    <div class="row">
+      <div class="offset-md-4 col-md-4 mt-3">
+        <button class="btn btn-block btn-primary" data-toggle="modal" data-target="#inputModal"
+          data-game="Tebak Angka">Tebak
+          Angka</button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="offset-md-4 col-md-4 mt-3">
+        <button class="btn btn-block btn-primary" data-toggle="modal" data-target="#inputModal"
+          data-game="GyRace">GyRace</button>
+      </div>
     </div>
     <p class="footer">by Makassar Robotics</p>
   </div>
@@ -69,6 +77,10 @@
             <div class="form-group">
               <label for="phone">Nomor Telepon:</label>
               <input type="text" class="form-control" id="phone">
+            </div>
+            <div class="form-group">
+              <label for="phone">Pin :</label>
+              <input type="text" class="form-control" id="pin">
             </div>
           </form>
         </div>
@@ -123,25 +135,63 @@
       var name = document.getElementById('name').value;
       var phone = document.getElementById('phone').value;
       var game = document.getElementById('gameName').value;
+      var pin = document.getElementById('pin').value;
 
       gameSlug = slugify(game);
+      document.getElementById('pin').value = '';
+
 
 
       // Save the data to the Firebase Realtime Database
       var dataRef = firebase.database().ref('event/games/' + gameSlug + '/');
       var newEntryRef = dataRef.push({
         name: name,
-        phone: phone
+        phone: phone,        
       }).then(function (snapshot) {
         let newEntryKey = snapshot.key;
         $('#inputModal').modal('hide');
-        switch (gameSlug) {
-          case 'tebak-angka':
-            window.location.href = 'tebak-angka.html?entryKey=' + encodeURIComponent(newEntryKey) + '&name=' + encodeURIComponent(name);
-            break;
-          // Tambahkan case untuk membuka halaman permainan lainnya di sini
-        }
+        var devRef = firebase.database().ref('device/lcd-stat');
+        devRef.child('pin').get().then((snapshot) => {
+          if (snapshot.exists()) {
+            if (pin == snapshot.val()) {
+              // console.log('OK');
+              
+              switch (gameSlug) {
+                case 'tebak-angka':
+                  window.location.href = 'tebak-angka.html?entryKey=' + encodeURIComponent(newEntryKey) + '&name=' + encodeURIComponent(name) + '&mode=live';
+                  break;
+                case 'gyrace':
+                  window.location.href = './gyrace/index.html?entryKey=' + encodeURIComponent(newEntryKey) + '&name=' + encodeURIComponent(name) + '&mode=live';
+                  break;
+                // Tambahkan case untuk membuka halaman permainan lainnya di sini
+              }
+
+            } else {
+              // alert('OFFLINE MODE');
+              switch (gameSlug) {
+                case 'tebak-angka':
+                  window.location.href = 'tebak-angka.html?entryKey=' + encodeURIComponent(newEntryKey) + '&name=' + encodeURIComponent(name);
+                  break;
+                case 'gyrace':
+                  window.location.href = './gyrace/index.html?entryKey=' + encodeURIComponent(newEntryKey) + '&name=' + encodeURIComponent(name);
+                  break;
+                // Tambahkan case untuk membuka halaman permainan lainnya di sini
+              }
+            }
+
+          } else {
+            console.log("No data available");
+          }
+        }).catch((error) => {
+          console.error(error);
+        });
+
+
       });
+
+
+
+
     }
 
 
