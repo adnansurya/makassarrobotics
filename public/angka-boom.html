@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .row {
+        justify-content: center;
+        display: flex;
+        flex-direction: row;
+      }
+      .heart {
+        color: red;
+        font-size: 100px;
+        line-height: 100px;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-database.js"></script>
+
+    <script>
+      var firebaseConfig = {
+        apiKey: "AIzaSyAcHklpkVYko5ZyuQXaeHhGxa8F3UzxDp0",
+        authDomain: "mksrobotics.firebaseapp.com",
+        databaseURL: "https://mksrobotics.firebaseio.com",
+        projectId: "mksrobotics",
+        storageBucket: "mksrobotics.appspot.com",
+        messagingSenderId: "236823766418",
+        appId: "1:236823766418:web:31de7229a960e361",
+      };
+      firebase.initializeApp(firebaseConfig);
+      var entryKey = urlParams.get("entryKey");
+      var liveMode = false;
+      if (gameMode == "live") {
+        liveMode = true;
+      }
+
+      var devRef = firebase.database().ref("event/games/angka-boom/status");
+
+      // Update the values of the desired fields
+      if (liveMode) {
+        devRef
+          .update({
+            in_game: "Angka Boom",
+            stat: "active",
+            player: playerName,
+            score_text: "Attempt",
+            score_val: 0,
+            prompt: "Game Start!",
+          })
+          .then(function () {
+            console.log("Data updated successfully");
+          })
+          .catch(function (error) {
+            console.error("Error updating data:", error);
+          });
+      }
+    </script>
+  </body>
+</html>

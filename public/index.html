@@ -202,11 +202,16 @@
           .then(function (snapshot) {
             let newEntryKey = snapshot.key;
             $("#inputModal").modal("hide");
-            var devRef = firebase.database().ref("device/lcd-stat");
+            var devRef = firebase
+              .database()
+              .ref("event/games/" + gameSlug + "/status");
+            // console.log("TES: " + gameSlug);
+
             devRef
               .child("pin")
               .get()
               .then((snapshot) => {
+                // console.log(snapshot.val());
                 if (snapshot.exists()) {
                   if (pin == snapshot.val()) {
                     // console.log('OK');
@@ -228,6 +233,14 @@
                           encodeURIComponent(name) +
                           "&mode=live";
                         break;
+                      case "angka-boom":
+                        window.location.href =
+                          "angka-boom.html?entryKey=" +
+                          encodeURIComponent(newEntryKey) +
+                          "&name=" +
+                          encodeURIComponent(name) +
+                          "&mode=live";
+                        break;
                       // Tambahkan case untuk membuka halaman permainan lainnya di sini
                     }
                   } else {
@@ -243,6 +256,13 @@
                       case "gyrace":
                         window.location.href =
                           "./gyrace/index.html?entryKey=" +
+                          encodeURIComponent(newEntryKey) +
+                          "&name=" +
+                          encodeURIComponent(name);
+                        break;
+                      case "angka-boom":
+                        window.location.href =
+                          "angka-boom.html?entryKey=" +
                           encodeURIComponent(newEntryKey) +
                           "&name=" +
                           encodeURIComponent(name);
