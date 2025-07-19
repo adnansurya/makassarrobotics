@@ -1,284 +1,41 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Makassar Robotics</title>
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    />
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #f8f9fa;
-        padding-top: 50px;
-      }
+<html lang="en">
 
-      .container {
-        text-align: center;
-      }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Center</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+</head>
 
-      h1 {
-        color: #007bff;
-        margin-bottom: 30px;
-      }
+<body>
+  <div class="container">
+    <header>
+      <h1>Game Center</h1>
+      <p>Pilih game yang ingin dimainkan</p>
+    </header>
 
-      .btn-group {
-        margin-bottom: 20px;
-      }
-
-      .footer {
-        margin-top: 50px;
-        color: #6c757d;
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="container">
-      <h1>Selamat Datang di Game Center</h1>
-      <div class="row">
-        <div class="offset-md-4 col-md-4 mt-3">
-          <button
-            class="btn btn-block btn-primary"
-            data-toggle="modal"
-            data-target="#inputModal"
-            data-game="Tebak Angka"
-          >
-            Tebak Angka
-          </button>
-        </div>
+    <div class="game-list">
+      <div class="game-card" onclick="window.location.href='games/number-guess.html'">
+        <h2>Tebak Angka</h2>
+        <p>Tebak angka antara 1-100</p>
       </div>
-      <div class="row">
-        <div class="offset-md-4 col-md-4 mt-3">
-          <button
-            class="btn btn-block btn-primary"
-            data-toggle="modal"
-            data-target="#inputModal"
-            data-game="GyRace"
-          >
-            GyRace
-          </button>
-        </div>
-      </div>
-      <div class="row">
-        <div class="offset-md-4 col-md-4 mt-3">
-          <button
-            class="btn btn-block btn-primary"
-            data-toggle="modal"
-            data-target="#inputModal"
-            data-game="Angka Boom"
-          >
-            Angka Boom
-          </button>
-        </div>
-      </div>
-      <p class="footer">by Makassar Robotics</p>
-    </div>
 
-    <!-- Modal -->
-    <div
-      class="modal fade"
-      id="inputModal"
-      tabindex="-1"
-      role="dialog"
-      aria-labelledby="inputModalLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="inputModalLabel">
-              Masukkan Nama dan Nomor Telepon
-            </h5>
-            <button
-              type="button"
-              class="close"
-              data-dismiss="modal"
-              aria-label="Close"
-            >
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <form>
-              <div class="form-group">
-                <label for="gameName">Nama Permainan:</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="gameName"
-                  readonly
-                />
-              </div>
-              <div class="form-group">
-                <label for="name">Nama:</label>
-                <input type="text" class="form-control" id="name" />
-              </div>
-              <div class="form-group">
-                <label for="phone">Nomor Telepon:</label>
-                <input type="text" class="form-control" id="phone" />
-              </div>
-              <div class="form-group">
-                <label for="phone">Pin :</label>
-                <input type="text" class="form-control" id="pin" />
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary" onclick="saveInput()">
-              Simpan
-            </button>
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-dismiss="modal"
-            >
-              Batal
-            </button>
-          </div>
-        </div>
+      <div class="game-card" onclick="window.location.href='games/whack-a-number.html'">
+        <h2>Whack-a-Number</h2>
+        <p>Click numbers based on the given objective</p>
+      </div>
+
+      <div class="game-card coming-soon">
+        <h2>Game Lain</h2>
+        <p>Segera hadir</p>
       </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-database.js"></script>
+  <script src="script.js"></script>
+</body>
 
-    <script>
-      // Initialize Firebase
-      var firebaseConfig = {
-        apiKey: "AIzaSyAcHklpkVYko5ZyuQXaeHhGxa8F3UzxDp0",
-        authDomain: "mksrobotics.firebaseapp.com",
-        databaseURL: "https://mksrobotics.firebaseio.com",
-        projectId: "mksrobotics",
-        storageBucket: "mksrobotics.appspot.com",
-        messagingSenderId: "236823766418",
-        appId: "1:236823766418:web:31de7229a960e361",
-      };
-      firebase.initializeApp(firebaseConfig);
-      $("#inputModal").on("show.bs.modal", function (event) {
-        var button = $(event.relatedTarget);
-        var gameName = button.data("game");
-        console.log(gameName);
-
-        var modal = $(this);
-        modal.find(".modal-title").text("Masukkan Nama dan Nomor Telepon");
-        modal.find("#gameName").val(gameName);
-      });
-
-      function slugify(text) {
-        return text
-          .toLowerCase()
-          .replace(/ /g, "-") // Replace spaces with hyphens
-          .replace(/[^\w-]+/g, "") // Remove non-word characters except hyphens
-          .replace(/--+/g, "-") // Replace multiple consecutive hyphens with a single hyphen
-          .replace(/^-+|-+$/g, ""); // Remove leading and trailing hyphens
-      }
-
-      let gameSlug;
-      function saveInput() {
-        var name = document.getElementById("name").value;
-        var phone = document.getElementById("phone").value;
-        var game = document.getElementById("gameName").value;
-        var pin = document.getElementById("pin").value;
-
-        gameSlug = slugify(game);
-        document.getElementById("pin").value = "";
-
-        // Save the data to the Firebase Realtime Database
-        var dataRef = firebase
-          .database()
-          .ref("event/games/" + gameSlug + "/players/");
-        var newEntryRef = dataRef
-          .push({
-            name: name,
-            phone: phone,
-          })
-          .then(function (snapshot) {
-            let newEntryKey = snapshot.key;
-            $("#inputModal").modal("hide");
-            var devRef = firebase
-              .database()
-              .ref("event/games/" + gameSlug + "/status");
-            // console.log("TES: " + gameSlug);
-
-            devRef
-              .child("pin")
-              .get()
-              .then((snapshot) => {
-                // console.log(snapshot.val());
-                if (snapshot.exists()) {
-                  if (pin == snapshot.val()) {
-                    // console.log('OK');
-
-                    switch (gameSlug) {
-                      case "tebak-angka":
-                        window.location.href =
-                          "tebak-angka.html?entryKey=" +
-                          encodeURIComponent(newEntryKey) +
-                          "&name=" +
-                          encodeURIComponent(name) +
-                          "&mode=live";
-                        break;
-                      case "gyrace":
-                        window.location.href =
-                          "./gyrace/index.html?entryKey=" +
-                          encodeURIComponent(newEntryKey) +
-                          "&name=" +
-                          encodeURIComponent(name) +
-                          "&mode=live";
-                        break;
-                      case "angka-boom":
-                        window.location.href =
-                          "angka-boom.html?entryKey=" +
-                          encodeURIComponent(newEntryKey) +
-                          "&name=" +
-                          encodeURIComponent(name) +
-                          "&mode=live";
-                        break;
-                      // Tambahkan case untuk membuka halaman permainan lainnya di sini
-                    }
-                  } else {
-                    // alert('OFFLINE MODE');
-                    switch (gameSlug) {
-                      case "tebak-angka":
-                        window.location.href =
-                          "tebak-angka.html?entryKey=" +
-                          encodeURIComponent(newEntryKey) +
-                          "&name=" +
-                          encodeURIComponent(name);
-                        break;
-                      case "gyrace":
-                        window.location.href =
-                          "./gyrace/index.html?entryKey=" +
-                          encodeURIComponent(newEntryKey) +
-                          "&name=" +
-                          encodeURIComponent(name);
-                        break;
-                      case "angka-boom":
-                        window.location.href =
-                          "angka-boom.html?entryKey=" +
-                          encodeURIComponent(newEntryKey) +
-                          "&name=" +
-                          encodeURIComponent(name);
-                        break;
-                      // Tambahkan case untuk membuka halaman permainan lainnya di sini
-                    }
-                  }
-                } else {
-                  console.log("No data available");
-                }
-              })
-              .catch((error) => {
-                console.error(error);
-              });
-          });
-      }
-    </script>
-  </body>
 </html>

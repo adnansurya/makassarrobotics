@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whack-a-Number - Game Center</title>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        .whack-container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .number-cell {
+            background-color: #3498db;
+            color: white;
+            border-radius: 5px;
+            padding: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .number-cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .correct {
+            background-color: #2ecc71 !important;
+        }
+
+        .incorrect {
+            background-color: #e74c3c !important;
+        }
+
+        .game-info {
+            margin: 20px 0;
+            font-size: 1.2rem;
+        }
+
+        .score-display {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #f39c12;
+        }
+
+        .objective {
+            font-size: 1.4rem;
+            margin: 15px 0;
+            min-height: 40px;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="whack-container">
+        <h1 class="game-title">Whack-a-Number</h1>
+
+        <div class="game-info">
+            <span>Score: <span class="score-display" id="score">0</span></span>
+            <span> | Time: <span class="score-display" id="time">60</span>s</span>
+        </div>
+
+        <div class="objective" id="objective">Find the largest number!</div>
+
+        <div class="game-grid" id="gameGrid"></div>
+
+        <button onclick="window.location.href='../index.html'" class="guess-button">Back to Game Center</button>
+    </div>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAcHklpkVYko5ZyuQXaeHhGxa8F3UzxDp0",
+            authDomain: "mksrobotics.firebaseapp.com",
+            databaseURL: "https://mksrobotics.firebaseio.com",
+            projectId: "mksrobotics",
+            storageBucket: "mksrobotics.appspot.com",
+            messagingSenderId: "236823766418",
+            appId: "1:236823766418:web:31de7229a960e361"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Game variables
+        let score = 0;
+        let timeLeft = 60;
+        let gameInterval;
+        let currentObjective = '';
+        let correctNumber = null;
+
+        // Objectives
+        const objectives = [
+            { text: "Click the LARGEST number", check: (num, numbers) => num === Math.max(...numbers) },
+            { text: "Click the SMALLEST number", check: (num, numbers) => num === Math.min(...numbers) },
+            { text: "Click an EVEN number", check: (num) => num % 2 === 0 },
+            { text: "Click an ODD number", check: (num) => num % 2 !== 0 }
+        ];
+
+        // Initialize game
+        function initGame() {
+            score = 0;
+            timeLeft = 60;
+            document.getElementById('score').textContent = score;
+            document.getElementById('time').textContent = timeLeft;
+
+            generateGrid();
+            startTimer();
+        }
+
+        // Generate number grid
+        function generateGrid() {
+            const grid = document.getElementById('gameGrid');
+            grid.innerHTML = '';
+
+            // Generate 16 random numbers between 1-100
+            const numbers = Array.from({ length: 16 }, () => Math.floor(Math.random() * 100) + 1);
+
+            // Select random objective
+            const objective = objectives[Math.floor(Math.random() * objectives.length)];
+            currentObjective = objective;
+            document.getElementById('objective').textContent = objective.text;
+
+            // Determine correct numbers based on objective
+            correctNumber = null;
+            if (objective.text.includes("LARGEST")) {
+                correctNumber = Math.max(...numbers);
+            } else if (objective.text.includes("SMALLEST")) {
+                correctNumber = Math.min(...numbers);
+            }
+
+            // Create grid cells
+            numbers.forEach((num, index) => {
+                const cell = document.createElement('div');
+                cell.className = 'number-cell';
+                cell.textContent = num;
+                cell.dataset.number = num;
+
+                cell.addEventListener('click', () => handleCellClick(num, numbers, cell));
+
+                grid.appendChild(cell);
+            });
+        }
+
+        // Handle cell click
+        function handleCellClick(number, numbers, cell) {
+            if (currentObjective.check(number, numbers)) {
+                // Correct answer
+                cell.classList.add('correct');
+                score += 10;
+                document.getElementById('score').textContent = score;
+
+                // Generate new grid after short delay
+                setTimeout(generateGrid, 500);
+            } else {
+                // Incorrect answer
+                cell.classList.add('incorrect');
+                score = Math.max(0, score - 5);
+                document.getElementById('score').textContent = score;
+
+                // Highlight correct number if applicable
+                if (correctNumber !== null) {
+                    const cells = document.querySelectorAll('.number-cell');
+                    cells.forEach(c => {
+                        if (parseInt(c.dataset.number) === correctNumber) {
+                            c.classList.add('correct');
+                        }
+                    });
+                }
+
+                // Generate new grid after short delay
+                setTimeout(generateGrid, 1000);
+            }
+        }
+
+        // Start game timer
+        function startTimer() {
+            clearInterval(gameInterval);
+            gameInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('time').textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        // End game
+        function endGame() {
+            clearInterval(gameInterval);
+
+            // Save score
+            const name = prompt(`Game Over! Your score: ${score}. Enter your name for the leaderboard:`);
+            if (name) {
+                database.ref('scores/whackANumber').push({
+                    name: name,
+                    score: score,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+            }
+
+            // Show leaderboard
+            loadHighScores();
+        }
+
+        // Load high scores
+        function loadHighScores() {
+            database.ref('scores/whackANumber').orderByChild('score').limitToLast(5).on('value', (snapshot) => {
+                const scores = snapshot.val();
+                const objectiveElement = document.getElementById('objective');
+                objectiveElement.innerHTML = '<h3>High Scores</h3>';
+
+                if (scores) {
+                    const sortedScores = Object.entries(scores).sort((a, b) => b[1].score - a[1].score);
+
+                    sortedScores.forEach(([key, scoreData]) => {
+                        const scoreElement = document.createElement('div');
+                        scoreElement.textContent = `${scoreData.name}: ${scoreData.score} points`;
+                        objectiveElement.appendChild(scoreElement);
+                    });
+                } else {
+                    objectiveElement.textContent = 'No high scores yet!';
+                }
+            });
+        }
+
+        // Start game when page loads
+        window.onload = initGame;
+    </script>
+</body>
+
+</html>

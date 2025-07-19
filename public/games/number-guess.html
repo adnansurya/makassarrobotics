@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tebak Angka - Game Center</title>
+    <link rel="stylesheet" href="../styles.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+</head>
+
+<body>
+    <div class="game-container">
+        <h1 class="game-title">Tebak Angka</h1>
+        <p>Tebak angka antara 1 sampai 100</p>
+
+        <div class="message" id="message"></div>
+
+        <input type="number" id="guessInput" class="guess-input" min="1" max="100">
+        <button onclick="checkGuess()" class="guess-button">Tebak</button>
+
+        <div class="attempts">Percobaan: <span id="attempts">0</span></div>
+
+        <div class="high-score">
+            <h3>High Score</h3>
+            <div id="highScores"></div>
+        </div>
+
+        <button onclick="window.location.href='../index.html'" style="margin-top: 20px;">Kembali ke Game Center</button>
+    </div>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAcHklpkVYko5ZyuQXaeHhGxa8F3UzxDp0",
+            authDomain: "mksrobotics.firebaseapp.com",
+            databaseURL: "https://mksrobotics.firebaseio.com",
+            projectId: "mksrobotics",
+            storageBucket: "mksrobotics.appspot.com",
+            messagingSenderId: "236823766418",
+            appId: "1:236823766418:web:31de7229a960e361"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        let targetNumber = Math.floor(Math.random() * 100) + 1;
+        let attempts = 0;
+
+        // Load high scores
+        function loadHighScores() {
+            database.ref('scores/numberGuess').orderByChild('attempts').limitToLast(5).on('value', (snapshot) => {
+                const scores = snapshot.val();
+                const highScoresElement = document.getElementById('highScores');
+                highScoresElement.innerHTML = '';
+
+                if (scores) {
+                    const sortedScores = Object.entries(scores).sort((a, b) => a[1].attempts - b[1].attempts);
+
+                    sortedScores.forEach(([key, score]) => {
+                        const scoreElement = document.createElement('div');
+                        scoreElement.textContent = `${score.name}: ${score.attempts} percobaan`;
+                        highScoresElement.appendChild(scoreElement);
+                    });
+                } else {
+                    highScoresElement.textContent = 'Belum ada high score';
+                }
+            });
+        }
+
+        function checkGuess() {
+            const guessInput = document.getElementById('guessInput');
+            const messageElement = document.getElementById('message');
+            const attemptsElement = document.getElementById('attempts');
+
+            const guess = parseInt(guessInput.value);
+
+            if (isNaN(guess) || guess < 1 || guess > 100) {
+                messageElement.textContent = 'Masukkan angka antara 1 dan 100!';
+                return;
+            }
+
+            attempts++;
+            attemptsElement.textContent = attempts;
+
+            if (guess === targetNumber) {
+                messageElement.textContent = `Selamat! Anda menebak angka ${targetNumber} dengan ${attempts} percobaan.`;
+                messageElement.style.color = 'green';
+
+                // Save score
+                const name = prompt('Selamat! Masukkan nama Anda untuk high score:');
+                if (name) {
+                    database.ref('scores/numberGuess').push({
+                        name: name,
+                        attempts: attempts,
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    });
+                }
+
+                // Disable input and button
+                guessInput.disabled = true;
+                document.querySelector('.guess-button').disabled = true;
+
+                // Reload high scores
+                loadHighScores();
+            } else if (guess < targetNumber) {
+                messageElement.textContent = 'Terlalu rendah! Coba lagi.';
+                messageElement.style.color = 'blue';
+            } else {
+                messageElement.textContent = 'Terlalu tinggi! Coba lagi.';
+                messageElement.style.color = 'red';
+            }
+
+            guessInput.value = '';
+            guessInput.focus();
+        }
+
+        // Initialize game
+        document.getElementById('guessInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                checkGuess();
+            }
+        });
+
+        loadHighScores();
+    </script>
+</body>
+
+</html>

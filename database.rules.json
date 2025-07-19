@@ -4,4 +4,18 @@
     ".write": "now < 2033016304000"
   }
 }
-// Sunday, June 4, 2034 2:45:04 PM GMT+08:00
+
+{
+  "rules": {
+    "scores": {
+      "numberGuess": {
+        ".read": "now < 2033016304000",
+        ".write":  "now < 2033016304000"
+      },
+      "whackANumber": {
+        ".read":  "now < 2033016304000",
+        ".write":  "now < 2033016304000"
+      }
+    }
+  }
+}
