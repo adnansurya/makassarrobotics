@@ -13,6 +13,10 @@
             max-width: 600px;
             margin: 0 auto;
             text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .game-grid {
@@ -46,6 +50,9 @@
         }
 
         .game-info {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
             margin: 20px 0;
             font-size: 1.2rem;
         }
@@ -62,6 +69,11 @@
             min-height: 40px;
             color: #2c3e50;
         }
+
+        .difficulty-display {
+            font-weight: bold;
+            color: #9b59b6;
+        }
     </style>
 </head>
 
@@ -72,13 +84,20 @@
         <div class="game-info">
             <span>Score: <span class="score-display" id="score">0</span></span>
             <span> | Time: <span class="score-display" id="time">60</span>s</span>
+            <span> | Difficulty: <span class="difficulty-display" id="difficulty">Medium</span></span>
         </div>
 
         <div class="objective" id="objective">Find the largest number!</div>
 
         <div class="game-grid" id="gameGrid"></div>
 
-        <button onclick="window.location.href='../index.html'" class="guess-button">Back to Game Center</button>
+        <button onclick="window.location.href='difficulty-selector.html?game=whack-a-number'" class="guess-button"
+            style="margin-top: 10px;">
+            Change Difficulty
+        </button>
+        <button onclick="window.location.href='../index.html'" class="guess-button" style="margin-top: 10px;">
+            Back to Game Center
+        </button>
     </div>
 
     <script>
@@ -92,6 +111,8 @@
             messagingSenderId: "236823766418",
             appId: "1:236823766418:web:31de7229a960e361"
         };
+
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
@@ -101,6 +122,10 @@
         let gameInterval;
         let currentObjective = '';
         let correctNumber = null;
+        let currentDifficulty = 'medium';
+        let numberRange = [1, 100];
+        let timePerRound = 3000; // ms
+        let roundTimeout;
 
         // Objectives
         const objectives = [
@@ -112,8 +137,54 @@
 
         // Initialize game
         function initGame() {
+            // Get difficulty from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const difficulty = urlParams.get('difficulty') || 'medium';
+
+            setDifficulty(difficulty);
+        }
+
+        // Set difficulty
+        function setDifficulty(difficulty) {
+            currentDifficulty = difficulty;
+
+            // Update difficulty display
+            document.getElementById('difficulty').textContent =
+                difficulty === 'easy' ? 'Easy' :
+                    difficulty === 'medium' ? 'Medium' : 'Hard';
+
+            // Set game parameters based on difficulty
+            switch (difficulty) {
+                case 'easy':
+                    numberRange = [1, 50];
+                    timeLeft = 90;
+                    timePerRound = 4000;
+                    break;
+                case 'medium':
+                    numberRange = [1, 100];
+                    timeLeft = 60;
+                    timePerRound = 3000;
+                    break;
+                case 'hard':
+                    numberRange = [-50, 150];
+                    timeLeft = 45;
+                    timePerRound = 2000;
+                    break;
+            }
+
+            // Reset game
+            resetGame();
+        }
+
+        // Reset game
+        function resetGame() {
+            clearInterval(gameInterval);
+            clearTimeout(roundTimeout);
+
             score = 0;
-            timeLeft = 60;
+            timeLeft = currentDifficulty === 'easy' ? 90 :
+                currentDifficulty === 'medium' ? 60 : 45;
+
             document.getElementById('score').textContent = score;
             document.getElementById('time').textContent = timeLeft;
 
@@ -126,8 +197,10 @@
             const grid = document.getElementById('gameGrid');
             grid.innerHTML = '';
 
-            // Generate 16 random numbers between 1-100
-            const numbers = Array.from({ length: 16 }, () => Math.floor(Math.random() * 100) + 1);
+            // Generate 16 random numbers based on difficulty range
+            const numbers = Array.from({ length: 16 }, () =>
+                Math.floor(Math.random() * (numberRange[1] - numberRange[0] + 1)) + numberRange[0]
+            );
 
             // Select random objective
             const objective = objectives[Math.floor(Math.random() * objectives.length)];
@@ -153,6 +226,14 @@
 
                 grid.appendChild(cell);
             });
+
+            // Auto-change grid after timePerRound if no selection
+            clearTimeout(roundTimeout);
+            roundTimeout = setTimeout(() => {
+                if (grid.innerHTML !== '') { // If grid hasn't been cleared by a click
+                    generateGrid();
+                }
+            }, timePerRound);
         }
 
         // Handle cell click
@@ -202,13 +283,15 @@
         // End game
         function endGame() {
             clearInterval(gameInterval);
+            clearTimeout(roundTimeout);
 
-            // Save score
+            // Save score with difficulty
             const name = prompt(`Game Over! Your score: ${score}. Enter your name for the leaderboard:`);
             if (name) {
-                database.ref('scores/whackANumber').push({
+                database.ref(`scores/whackANumber/${currentDifficulty}`).push({
                     name: name,
                     score: score,
+                    numberRange: numberRange,
                     timestamp: firebase.database.ServerValue.TIMESTAMP
                 });
             }
@@ -219,7 +302,7 @@
 
         // Load high scores
         function loadHighScores() {
-            database.ref('scores/whackANumber').orderByChild('score').limitToLast(5).on('value', (snapshot) => {
+            database.ref(`scores/whackANumber/${currentDifficulty}`).orderByChild('score').limitToLast(5).on('value', (snapshot) => {
                 const scores = snapshot.val();
                 const objectiveElement = document.getElementById('objective');
                 objectiveElement.innerHTML = '<h3>High Scores</h3>';
@@ -229,7 +312,7 @@
 
                     sortedScores.forEach(([key, scoreData]) => {
                         const scoreElement = document.createElement('div');
-                        scoreElement.textContent = `${scoreData.name}: ${scoreData.score} points`;
+                        scoreElement.textContent = `${scoreData.name}: ${scoreData.score} points (${scoreData.numberRange[0]}-${scoreData.numberRange[1]})`;
                         objectiveElement.appendChild(scoreElement);
                     });
                 } else {

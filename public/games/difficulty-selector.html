@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pilih Tingkat Kesulitan</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        .difficulty-container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .difficulty-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .difficulty-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .difficulty-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .easy-btn {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .medium-btn {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .hard-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .game-description {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="difficulty-container">
+        <h1>Pilih Tingkat Kesulitan</h1>
+        <p>Sebelum memulai game, pilih tingkat kesulitan yang sesuai</p>
+        
+        <div class="difficulty-options">
+            <button class="difficulty-btn easy-btn" onclick="startGame('easy')">
+                Mudah
+            </button>
+            <button class="difficulty-btn medium-btn" onclick="startGame('medium')">
+                Sedang
+            </button>
+            <button class="difficulty-btn hard-btn" onclick="startGame('hard')">
+                Sulit
+            </button>
+        </div>
+        
+        <div class="game-description" id="gameDescription">
+            <h3>Tebak Angka</h3>
+            <p>Tebak angka yang telah dipilih secara acak oleh sistem</p>
+        </div>
+        
+        <button onclick="window.location.href='../index.html'" class="guess-button" style="margin-top: 20px;">
+            Kembali ke Game Center
+        </button>
+    </div>
+
+    <script>
+        // Parse game name from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const gameName = urlParams.get('game');
+        
+        // Update description based on game
+        if (gameName === 'whack-a-number') {
+            document.getElementById('gameDescription').innerHTML = `
+                <h3>Whack-a-Number</h3>
+                <p>Temukan angka yang sesuai dengan petunjuk yang diberikan</p>
+            `;
+        }
+        
+        // Start game with selected difficulty
+        function startGame(difficulty) {
+            if (gameName === 'number-guess') {
+                window.location.href = `number-guess.html?difficulty=${difficulty}`;
+            } else if (gameName === 'whack-a-number') {
+                window.location.href = `whack-a-number.html?difficulty=${difficulty}`;
+            }
+        }
+    </script>
+</body>
+</html>

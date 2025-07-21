@@ -1,12 +1,5 @@
 {
   "rules": {
-    ".read": "now < 2033016304000",
-    ".write": "now < 2033016304000"
-  }
-}
-
-{
-  "rules": {
     "scores": {
       "numberGuess": {
         ".read": "now < 2033016304000",
