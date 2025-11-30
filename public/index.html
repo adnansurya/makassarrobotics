@@ -2,40 +2,79 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Game Center</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Game Center | Himatikom × Makassar Robotics</title>
+
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/pages/index.css" />
 </head>
 
 <body>
-  <div class="container">
-    <header>
-      <h1>Game Center</h1>
-      <p>Pilih game yang ingin dimainkan</p>
+
+  <div class="bg-shapes"></div>
+
+  <div class="container fade-in">
+
+    <header class="header">
+
+      <div class="brand-wrapper">
+        <a href="https://instagram.com/himatikom_unipol" target="_blank" class="brand"
+          title="Kunjungi Instagram Himatikom">
+          <img src="assets/himatikomLogo.png" alt="Himatikom UNIPOL" class="brand__logo" />
+        </a>
+
+        <div class="brand-divider">
+          <span class="divider-line"></span>
+          <span class="divider-icon">⚡</span>
+          <span class="divider-line"></span>
+        </div>
+
+        <a href="https://instagram.com/makassarrobotics" target="_blank" class="brand"
+          title="Kunjungi Instagram Makassar Robotics">
+          <img src="assets/mr-logo.png" alt="Makassar Robotics" class="brand__logo" />
+        </a>
+      </div>
+
+      <h1 class="header__title premium">Game Center</h1>
+      <p class="header__subtitle soft">HIMATIKOM UNIPOL ✕ Makassar Robotics</p>
+
     </header>
 
-    <div class="game-list">
+
+    <section class="game-list">
+
       <div class="game-card" onclick="window.location.href='games/difficulty-selector.html?game=number-guess'">
-        <h2>Tebak Angka</h2>
-        <p>Tebak angka antara 1-100</p>
+        <div class="badge">🔥 Populer</div>
+        <h2 class="game-card__title">Tebak Angka</h2>
+        <p class="game-card__desc">Uji logika dan keberuntunganmu!</p>
       </div>
 
       <div class="game-card" onclick="window.location.href='games/difficulty-selector.html?game=whack-a-number'">
-        <h2>Whack-a-Number</h2>
-        <p>Click numbers based on the given objective</p>
+        <h2 class="game-card__title">Whack-a-Number</h2>
+        <p class="game-card__desc">Kecepatan & fokus jadi kunci.</p>
       </div>
 
-      <div class="game-card coming-soon">
-        <h2>Game Lain</h2>
-        <p>Segera hadir</p>
+      <div class="game-card game-card--disabled">
+        <h2 class="game-card__title">Soon</h2>
+        <p class="game-card__desc">Game baru dalam pengembangan...</p>
       </div>
-    </div>
+
+    </section>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    document.querySelectorAll(".game-card").forEach(card => {
+      card.addEventListener("mousemove", (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        card.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.15), rgba(255,255,255,0.03))`;
+      });
+    });
+
+  </script>
 </body>
 
 </html>
